@@ -1,2 +1,2 @@
-def get_host():
-    return 'no host found!'
+def get_hosts():
+    return 'no hosts found!'
