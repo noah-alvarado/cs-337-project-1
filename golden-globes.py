@@ -36,3 +36,26 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     args_to_funcs(args.info)
+
+# reputable news outlets:
+# Golden Globe Awards: "user":"goldenglobes","id":"1214036660305817600"
+# ABC News: "user":"abcnews","id":"1214011891925733376"
+# Deadline Hollywood: "user":"DEADLINE","id":"1214005309259169793"
+# E! News: "user":"enews","id":"1214010782956040192"
+# Entertainment Tonight: "user":"etnow","id":"1213164371217723392"
+# Entertainment Weekly: "user":"EW","id":"1213996984937459712"
+# Good Morning America: "user":"GMA","id":"1213077705706680320"
+# Huffington Post: "user":"HuffPost","id":"1213174711791820800"
+# IMDb: "user":"IMDb","id":"1213565772020305920"
+# MTV: "user":"MTV","id":"1214041643579531265"
+# MTV News: "user":"MTVNEWS","id":"1214029399760285697"
+# NBC Entertainment: "user":"nbc","id":"1214045047257067521"
+# People: "user":"people","id":"1214031008242249728"
+# Rotten Tomatoes: "user":"RottenTomatoes","id":"1214009260213846017"
+# The Hollywood Reporter: "user":"THR","id":"1214036145115414528"
+# TMZ: "user":"TMZ","id":"1213997091225128960"
+# Twitter Movies: "user":"TwitterMovies","id":"1214029961264345088"
+# US Weekly: "user":"usweekly","id":"1213144248016658435"
+# Vanity Fair: "user":"VanityFair","id":"1214005475601203201"
+# Variety: "user":"Variety","id":"1214004494540820480"
+#
