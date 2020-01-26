@@ -1,5 +1,8 @@
+import copy
 import json
 import re
+
+import numpy as np
 
 
 class Tweet(object):
@@ -54,11 +57,43 @@ class GGData(object):
 
         content = open(file).read().splitlines()
 
-        self.tweets = dict()
+        tweets = dict()
         for line in content:
-            try:
-                tweet = Tweet(json.loads(line))
-                self.tweets[tweet.id] = tweet
-            except IndexError:
-                print(line)
-                return
+            tweet = Tweet(json.loads(line))
+            tweets[tweet.id] = tweet
+
+        self.__dict__ = copy.deepcopy(tweets)
+
+    def random_split(self, fraction=0.3333):
+        indices = list(self.__dict__.keys())
+        indices_len = len(indices)
+
+        if fraction > 1.0:
+            raise ValueError('N cannot be bigger than number of examples!')
+
+        if fraction == 1.0:
+            return list(self.__dict__.keys()), list(self.__dict__.keys())
+
+        N = int(indices_len * fraction)
+        M = int(indices_len - N)
+        used_indices = []
+
+        train_indices = []
+        test_indices = []
+
+        i = 0
+        j = 0
+        while i < N or j < M:
+            rand_idx = np.random.randint(0, high=indices_len)
+            if i < N and rand_idx not in used_indices:
+                train_indices.append(indices[rand_idx])
+                used_indices.append(rand_idx)
+                i += 1
+
+            rand_idx = np.random.randint(0, high=indices_len)
+            if j < M and rand_idx not in used_indices:
+                test_indices.append(indices[rand_idx])
+                used_indices.append(rand_idx)
+                j += 1
+
+        return train_indices, test_indices
