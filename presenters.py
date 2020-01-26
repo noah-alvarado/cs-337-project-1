@@ -1,2 +1,2 @@
-def get_presenters():
+def get_presenters(tweets):
     return 'no presenters found!'

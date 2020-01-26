@@ -3,11 +3,12 @@ from nominees import get_nominees
 from winners import get_winners
 from host import get_hosts
 from awards import get_awards
+from data import GGData
 
 import argparse
 
 
-def args_to_funcs(args):
+def args_to_funcs(arguments, data):
     func_map = {
         'hosts': get_hosts,
         'awards': get_awards,
@@ -16,23 +17,24 @@ def args_to_funcs(args):
         'presenters': get_presenters
     }
 
-    if not args:
-        args = func_map.keys()
+    if not arguments:
+        arguments = func_map.keys()
 
-    for arg in args:
+    for arg in arguments:
         if arg not in func_map:
             err = f'\'{arg}\' is not a valid type of information!'
             raise ValueError(err)
 
         func = func_map.get(arg)
-        print(func())
+        print(func(data))
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Analyze tweets from the Golden Globes to find information about the '
                                                  'event.')
     parser.add_argument('-i', '--info', nargs='+', type=str, help='get specific information from the dataset')
-    parser.add_argument('-y', '--year', nargs=1, type=int, help='use the dataset of a previous year')
+    parser.add_argument('-f', '--file', nargs=1, type=str, help='specify location of the json file containing tweets')
     args = parser.parse_args()
 
-    args_to_funcs(args.info)
+    d = GGData(args.file)
+    args_to_funcs(args.info, d)

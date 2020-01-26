@@ -1,2 +1,2 @@
-def get_nominees():
+def get_nominees(tweets):
     return 'no nominees found!'

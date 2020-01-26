@@ -1,2 +1,2 @@
-def get_hosts():
+def get_hosts(tweets):
     return 'no hosts found!'
