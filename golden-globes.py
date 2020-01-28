@@ -1,3 +1,4 @@
+from data import GGData
 from presenters import get_presenters
 from nominees import get_nominees
 from winners import get_winners
@@ -7,7 +8,7 @@ from awards import get_awards
 import argparse
 
 
-def args_to_funcs(args):
+def args_to_funcs(args, data):
     func_map = {
         'hosts': get_hosts,
         'awards': get_awards,
@@ -25,17 +26,18 @@ def args_to_funcs(args):
             raise ValueError(err)
 
         func = func_map.get(arg)
-        print(func())
+        print(func(data))
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Analyze tweets from the Golden Globes to find information about the '
                                                  'event.')
     parser.add_argument('-i', '--info', nargs='+', type=str, help='get specific information from the dataset')
-    parser.add_argument('-y', '--year', nargs=1, type=int, help='use the dataset of a previous year')
+    parser.add_argument('-f', '--file', nargs=1, type=int, help='specify tweets file to parse')
     args = parser.parse_args()
 
-    args_to_funcs(args.info)
+    tweets = GGData(args.file)
+    args_to_funcs(args.info, tweets)
 
 # reputable news outlets:
 # Golden Globe Awards: "user":"goldenglobes","user_id":"18667907" 5 tweets
