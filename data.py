@@ -55,7 +55,7 @@ class GGData(object):
         if file is None:
             file = 'tweets/gg2020.json'
 
-        content = open(file).read().splitlines()
+        content = open(file, encoding='utf-8').read().splitlines()
 
         tweets = dict()
         for line in content:
