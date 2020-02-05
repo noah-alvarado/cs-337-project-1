@@ -1,5 +1,6 @@
 import re
 import nltk
+import operator
 
 def get_awards(tweets):
     starts_with = 'best'
@@ -35,6 +36,9 @@ def get_awards(tweets):
                             else:
                                 all_awards[possible_award] = 1
                                 tweet = ' '.join(tweetObj.words)
-
+    for i in range(23):
+        maxi = max(all_awards.items(), key=operator.itemgetter(1))
+        print (maxi)
+        all_awards[maxi[0]] = -1
 
     return all_awards
