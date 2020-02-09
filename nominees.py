@@ -1,5 +1,7 @@
-import nltk
 import re
+import nltk
+import urllib.request
+
 
 def get_nominees(tweets):
     nltk.download('averaged_perceptron_tagger')
@@ -29,15 +31,21 @@ def get_nominees(tweets):
                   'best television series - comedy or musical',
                   'best performance by an actor in a television series - drama',
                   'best performance by an actor in a television series - comedy or musical']
+    male_names = [name for name in nltk.names.words('male.txt')]
+    female_names = [name for name in nltk.names.words('female.txt')]
+    year = 2020
+    # link for web scraping for movies:
+    movies_wiki = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&page=' + year + '%20in%20film&prop=wikitext&formatversion=2'
     all_nominees = dict()
     for category in categories:
         all_nominees[category] = dict()
     tweets = tweets.__dict__
     for key, tweetObj in tweets.items():
         for category in categories:
-            host_re = re.compile(category)
+            category_re = re.compile(category)
+            possible_matches_re = re.compile('||||||||||')
             tweet = ' '.join(tweetObj.words)
-            possible_host_match = host_re.search(tweet)
+            possible_host_match = category_re.search(tweet)
             possible_nominees = []
             if possible_host_match:
                 tweet_sentences = nltk.sent_tokenize(tweet)
