@@ -1,3 +1,6 @@
+import re
+from reference import WINNER_NOISE
+
 
 def get_winners(tweets, awards):
     phrases = [['wins'],
@@ -13,49 +16,65 @@ def get_winners(tweets, awards):
                ['wins', 'the', 'Golden', 'Globe', 'for']]
 
     all_winners = dict()
+    all_winners['ignore'] = dict()
     for category in awards.keys():
         all_winners[category] = dict()
 
     for tweetObj in tweets.__dict__.items():
-        for phrase in phrases:
-            found_items = [False] * len(phrase)
-            for i in range(len(tweetObj.words) - len(phrase)):
-                seq = tweetObj.words[i:(i + len(phrase))]
-                for p in range(len(phrase)):
-                    if phrase[p].lower() == seq[p].lower():
-                        found_items[p] = True
-                    else:
-                        found_items = [False] * len(phrase)
-                        break
-                if all(found_items):
-                    break
-
-            if all(found_items):
-                winners, award = extract_winners(tweetObj, phrase, awards)
-
-                winners = '+'.join(winners)
-                if winners not in all_winners[award]:
-                    all_winners[award][winners] = 0
-
-                all_winners[award][winners] += 1
+        lowercase = ' '.join([lw for lw in map(lambda x: x.lower(), tweetObj.words)])
+        for phrase in map(lambda x: ' '.join(x), phrases):
+            if phrase in lowercase:
+                for winners, award in extract_winners(tweetObj, phrase, awards):
+                    winners = '+'.join(winners)
+                    if winners not in all_winners[award]:
+                        all_winners[award][winners] = 0
+                    if award != 'ignore':
+                        print(award, winners)
+                    all_winners[award][winners] += 1
                 break
+
+            # found_items = [False] * len(phrase)
+            # for i in range(len(tweetObj.words) - len(phrase)):
+            #     seq = tweetObj.words[i:(i + len(phrase))]
+            #     for p in range(len(phrase)):
+            #         if phrase[p].lower() == seq[p].lower():
+            #             found_items[p] = True
+            #         else:
+            #             found_items = [False] * len(phrase)
+            #             break
+            #     if all(found_items):
+            #         break
+            #
+            # if all(found_items):
+            #     winners, award = extract_winners(tweetObj, phrase, awards)
+            #
+            #     winners = '+'.join(winners)
+            #     if winners not in all_winners[award]:
+            #         all_winners[award][winners] = 0
+            #
+            #     all_winners[award][winners] += 1
+            #     break
 
     return "we're trying here"
 
 def extract_winners(tweet, phrase, awards):
-    winners = []
+    # winners = []
     lowercase = list(map(lambda w: w.lower(), tweet.words))
-    print(phrase)
-    print(lowercase)
-    start = lowercase.index(phrase[0])
+    # print(phrase)
+    # print(lowercase)
+    # start = lowercase.index(phrase[0])
 
-    # split into halves to search for correlation
+    try:
+        start = ' '.join(lowercase).index(phrase)
+    except ValueError:
+        return [['ignore'], 'ignore']
+
     if phrase == ['won', 'by']:
-        winner_part = tweet.words[(start + len(phrase)):]
-        award_part = tweet.words[:start]
+        winner_part = ' '.join(tweet.words)[(start + len(phrase)):]
+        award_part = ' '.join(lowercase)[:start]
     else:
-        winner_part = tweet.words[:start]
-        award_part = tweet.words[(start + len(phrase)):]
+        winner_part = ' '.join(tweet.words)[:start]
+        award_part = ' '.join(lowercase)[(start + len(phrase)):]
 
     possible_awards = []
     for award_name, properties in list(awards.items()):
@@ -63,38 +82,55 @@ def extract_winners(tweet, phrase, awards):
         exclusions = properties[1]
         plus = properties[2]
 
-        is_included = [False] * len(inclusions)
         is_excluded = False
-        has_plus = len(plus) == 0
-
-        for w in award_part:
-            for e in exclusions:
-                if e == w.lower():
-                    is_excluded = True
-                    break
-            if is_excluded:
+        # no exclusions
+        for exl in exclusions:
+            if exl in award_part:
+                is_excluded = True
                 break
-
-            for i in range(inclusions):
-                if inclusions[i] == w.lower():
-                    is_included[i] = True
-
-            if not has_plus:
-                for p in plus:
-                    if p == w.lower():
-                        has_plus = True
-                        break
-
-        if is_excluded or not has_plus or not all(is_included):
+        if is_excluded:
+            continue
+        # all inclusions
+        for inc in inclusions:
+            if inc not in award_part:
+                is_excluded = True
+                break
+        if is_excluded:
+            continue
+        # at least one plus
+        is_excluded = True
+        for p in plus:
+            if p in award_part:
+                is_excluded = False
+                break
+        if is_excluded:
             continue
 
         possible_awards.append(award_name)
 
+    for award in possible_awards:
+        # find presenter
+        name_match = re.compile("[A-Z][A-z-]* [A-Z][A-z-]*")
+        all_winner = re.findall(name_match, winner_part)
+        all_winner = [p for p in map(lambda x: x.lower(), all_winner)]
+        winners = []
+        for p in all_winner:
+            for nw in WINNER_NOISE:
+                if nw not in p:
+                    winners.append(p)
+        if len(winners) > 0:
+            yield winners, award
+        else:
+            print('\n', award)
+            print(winner_part, '\n')
+        # always return something, even if no possible awards
+    yield ['ignore'], 'ignore'
 
-    award = max(possible_awards, key=len)
-    print(award)
 
-    return winners, award
+    # award = max(possible_awards, key=len)
+    # print(award)
+    #
+    # return winners, award
         #
         # for possible_winner in possible_winners:
         #     print(tweet)

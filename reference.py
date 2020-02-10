@@ -1,3 +1,32 @@
+PRESENTER_NOISE = [
+    'annual',
+    'golden',
+    'globes',
+    'globe',
+    'awards',
+    'award',
+    'tv',
+    'television',
+    'motion',
+    'picture',
+    'when'
+]
+
+WINNER_NOISE = [
+    'annual',
+    'golden',
+    'globes',
+    'globe',
+    'awards',
+    'award',
+    'tv',
+    'television',
+    'motion',
+    'picture',
+    'when'
+]
+
+
 # { award : [
 #       [words in the tweet],
 #       [words not in the tweet],
