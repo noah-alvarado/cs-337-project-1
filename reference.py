@@ -9,8 +9,7 @@ PRESENTER_NOISE = [
     'television',
     'motion',
     'picture',
-    'when',
-
+    'when'
 ]
 
 # { award : [
@@ -66,7 +65,7 @@ AWARDS_LISTS = {
         []],
     'best performance by an actor in a supporting role in a motion picture': [
         ['best', 'actor', 'supporting'],
-        ['television', 'tv'],
+        ['television'],
         []],
     'best director - motion picture': [
         ['best', 'director'],

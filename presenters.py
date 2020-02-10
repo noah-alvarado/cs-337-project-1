@@ -99,6 +99,9 @@ def extract_presenters(tweet, phrase, awards):
 
         possible_awards.append(award_name)
 
+    if len(possible_awards) == 0:
+        print(award_part)
+
     # yield vote for presenter and award
     for award in possible_awards:
         # find presenter
