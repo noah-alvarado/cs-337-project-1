@@ -4,7 +4,7 @@ import operator
 
 def get_awards(tweets):
     possible_award = 'Best'
-    helpers = ['in', 'a', '-', '--', 'by', 'or', 'an', 'In', 'A', 'By', 'Or', 'An']
+    helpers = ['in', 'a', '-', '--', 'by', 'or', 'an', 'In', 'A', 'By', 'Or', 'An', ',']
     stop_words = ['For', 'From']
     wrong_words = ['Dressed', 'Advice', 'Moments', 'Looks', 'Reactions', 'Worst', 'Golden', 'Host', 'Party', 'Part']
     award_re = '[A-Z][a-z]*'
@@ -31,7 +31,7 @@ def get_awards(tweets):
                     possible_award = 'Best'
                     break;
                 elif (tweetObj.words[i] in helpers) or (re.match(award_re, tweetObj.words[i])):
-                    if (tweetObj.words[i] != '-'): # so we don't have duplicates, but need to remove if dashes are needed for formatting
+                    if (tweetObj.words[i] != '-') or (tweetObj.words[i] != ','): # so we don't have duplicates, but need to remove if dashes are needed for formatting
                         possible_award = possible_award + ' ' + tweetObj.words[i]
                 elif (tweetObj.words[i - 1] in helpers):
                     possible_award = 'Best'
