@@ -11,7 +11,8 @@ def get_presenters(tweets, awards):
         ['will', 'present'],
         ['will', 'be', 'presenting'],
         ['present', 'the'],
-        ['presents']
+        ['presents'],
+        ['present']
     ]
 
     presenter_votes = dict()
@@ -25,13 +26,12 @@ def get_presenters(tweets, awards):
             if phrase in lowercase:
                 for presenters, award in extract_presenters(tweet, phrase, awards):
 
-                    presenters.sort()
                     presenters = '+'.join(presenters)
                     if presenters not in presenter_votes[award]:
                         presenter_votes[award][presenters] = 0
 
                     if award != 'ignore':
-                        print(award, presenters)
+                        print('\n', award, presenters, '\n')
                     presenter_votes[award][presenters] += 1
 
                 break
@@ -45,19 +45,21 @@ def extract_presenters(tweet, phrase, awards):
     try:
         start = ' '.join(lowercase).index(phrase)
     except ValueError:
-        print('\n', f'couldn\'t find: {phrase}')
-        print(lowercase, '\n')
+        # print(f'\ncouldn\'t find: {phrase}')
+        # print(lowercase, '\n')
         return [['ignore'], 'ignore']
 
     # split into halves to search for correlation
     # keep presenter_part with capitalization to match names
     # lowercase awards to just match strings
     if phrase == ['presented', 'by']:
-        presenter_part = ' '.join(tweet.words[(start + len(phrase)):])
-        award_part = ' '.join(lowercase[:start])
+        presenter_part = ' '.join(tweet.words)[(start + len(phrase)):]
+        award_part = ' '.join(lowercase)[:start]
     else:
-        presenter_part = ' '.join(tweet.words[:start])
-        award_part = ' '.join(lowercase[(start + len(phrase)):])
+        presenter_part = ' '.join(tweet.words)[:start]
+        award_part = ' '.join(lowercase)[(start + len(phrase)):]
+
+    # print(award_part)
 
     # find associated award
     possible_awards = []
@@ -98,9 +100,6 @@ def extract_presenters(tweet, phrase, awards):
             continue
 
         possible_awards.append(award_name)
-
-    if len(possible_awards) == 0:
-        print(award_part)
 
     # yield vote for presenter and award
     for award in possible_awards:
