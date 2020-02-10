@@ -1,3 +1,8 @@
+import re
+
+from reference import PRESENTER_NOISE
+
+
 def get_presenters(tweets, awards):
     keyphrases = [
         ['presenting'],
@@ -6,41 +11,28 @@ def get_presenters(tweets, awards):
         ['will', 'present'],
         ['will', 'be', 'presenting'],
         ['present', 'the'],
-        ['presents'],
+        ['presents']
     ]
 
     presenter_votes = dict()
+    presenter_votes['ignore'] = dict()
     for a in awards.keys():
         presenter_votes[a] = dict()
 
     for tweet in tweets.__dict__.values():
-        for phrase in keyphrases:
-            # iterate from 0 to the end of the list minus the amount of positions we have to look ahead
-            found_items = [False] * len(phrase)
-            for i in range(len(tweet.words) - len(phrase)):
-                # get current sequence of words in tweet
-                seq = tweet.words[i:(i + len(phrase))]
+        lowercase = ' '.join([lw for lw in map(lambda x: x.lower(), tweet.words)])
+        for phrase in map(lambda x: ' '.join(x), keyphrases):
+            if phrase in lowercase:
+                for presenters, award in extract_presenters(tweet, phrase, awards):
 
-                # try to match tweet elements to phrase elements
-                for p in range(len(phrase)):
-                    if phrase[p].lower() == seq[p].lower():
-                        found_items[p] = True
-                    else:
-                        found_items = [False] * len(phrase)
-                        break
+                    presenters.sort()
+                    presenters = '+'.join(presenters)
+                    if presenters not in presenter_votes[award]:
+                        presenter_votes[award][presenters] = 0
 
-                if all(found_items):
-                    break
-
-            # get a presenter's name based on the phrase
-            if all(found_items):
-                presenters, award = extract_presenters(tweet, phrase, awards)
-
-                presenters = '+'.join(presenters)
-                if presenters not in presenter_votes[award]:
-                    presenter_votes[award][presenters] = 0
-
-                presenter_votes[award][presenters] += 1
+                    if award != 'ignore':
+                        print(award, presenters)
+                    presenter_votes[award][presenters] += 1
 
                 break
 
@@ -48,19 +40,24 @@ def get_presenters(tweets, awards):
 
 
 def extract_presenters(tweet, phrase, awards):
-    presenters = []
-    lowercase = list(map(lambda w: w.lower(), tweet.words))
-    print(phrase)
-    print(lowercase)
-    start = lowercase.index(phrase[0])
+    lowercase = list(map(lambda x: x.lower(), tweet.words))
+
+    try:
+        start = ' '.join(lowercase).index(phrase)
+    except ValueError:
+        print('\n', f'couldn\'t find: {phrase}')
+        print(lowercase, '\n')
+        return [['ignore'], 'ignore']
 
     # split into halves to search for correlation
+    # keep presenter_part with capitalization to match names
+    # lowercase awards to just match strings
     if phrase == ['presented', 'by']:
-        presenter_part = tweet.words[(start + len(phrase)):]
-        award_part = tweet.words[:start]
+        presenter_part = ' '.join(tweet.words[(start + len(phrase)):])
+        award_part = ' '.join(lowercase[:start])
     else:
-        presenter_part = tweet.words[:start]
-        award_part = tweet.words[(start + len(phrase)):]
+        presenter_part = ' '.join(tweet.words[:start])
+        award_part = ' '.join(lowercase[(start + len(phrase)):])
 
     # find associated award
     possible_awards = []
@@ -69,44 +66,57 @@ def extract_presenters(tweet, phrase, awards):
         exclusions = properties[1]
         plus = properties[2]
 
-        is_included = [False] * len(inclusions)
+        # find probable awards
         is_excluded = False
-        has_plus = len(plus) == 0
 
-        for w in award_part:
-            # no exclusions
-            for e in exclusions:
-                if e == w.lower():
-                    is_excluded = True
-                    break
-
-            if is_excluded:
+        # no exclusions
+        for exl in exclusions:
+            if exl in award_part:
+                is_excluded = True
                 break
 
-            # all inclusions
-            for i in range(inclusions):
-                if inclusions[i] == w.lower():
-                    is_included[i] = True
+        if is_excluded:
+            continue
 
-            # at least one plus
-            if not has_plus:
-                for p in plus:
-                    if p == w.lower():
-                        has_plus = True
-                        break
+        # all inclusions
+        for inc in inclusions:
+            if inc not in award_part:
+                is_excluded = True
+                break
 
-        # if there is an exclusion, no plus, or not every inclusion, skip this award
-        if is_excluded or not has_plus or not all(is_included):
+        if is_excluded:
+            continue
+
+        # at least one plus
+        is_excluded = True
+        for p in plus:
+            if p in award_part:
+                is_excluded = False
+                break
+
+        if is_excluded:
             continue
 
         possible_awards.append(award_name)
 
-    # get most specific award possible
-    award = max(possible_awards, key=len)
-    print(award)
-    # find presenter
+    # yield vote for presenter and award
+    for award in possible_awards:
+        # find presenter
+        name_match = re.compile("[A-Z][A-z-]* [A-Z][A-z-]*")
+        all_presenters = re.findall(name_match, presenter_part)
+        all_presenters = [p for p in map(lambda x: x.lower(), all_presenters)]
 
+        presenters = []
+        for p in all_presenters:
+            for nw in PRESENTER_NOISE:
+                if nw not in p:
+                    presenters.append(p)
 
+        if len(presenters) > 0:
+            yield presenters, award
+        else:
+            print('\n', award)
+            print(presenter_part, '\n')
 
-
-    return presenters, award
+    # always return something, even if no possible awards
+    yield ['ignore'], 'ignore'

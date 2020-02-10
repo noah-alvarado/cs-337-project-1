@@ -1,17 +1,37 @@
+PRESENTER_NOISE = [
+    'annual',
+    'golden',
+    'globes',
+    'globe',
+    'awards',
+    'award',
+    'tv',
+    'television',
+    'motion',
+    'picture',
+    'when',
+
+]
+
 # { award : [
 #       [words in the tweet],
 #       [words not in the tweet],
 #       [at least one word in the tweet]
 #   ]}
 AWARDS_LISTS = {
-    'cecil b. demille award': [
-        ['cecil', 'demille', 'award'],
+    'carol burnett award for lifetime achievement in television': [
+        ['award'],
         [],
-        []],
+        ['carol', 'burnett']
+    ],
+    'cecil b. demille award': [
+        ['award'],
+        [],
+        ['cecil', 'demille']],
     'best motion picture - drama': [
-        ['best', 'motion picture', 'drama'],
+        ['best', 'drama'],
         ['actor', 'actress', 'television'],
-        []],
+        ['motion', 'picture']],
     'best performance by an actress in a motion picture - drama': [
         ['best', 'actress', 'drama'],
         ['television'],
@@ -21,9 +41,9 @@ AWARDS_LISTS = {
         ['television'],
         []],
     'best motion picture - comedy or musical': [
-        ['best', 'motion picture', 'comedy', 'musical'],
+        ['best', 'comedy', 'musical'],
         ['actor', 'actress', 'television'],
-        []],
+        ['motion', 'picture']],
     'best performance by an actress in a motion picture - comedy or musical': [
         ['best', 'actress', 'comedy', 'musical'],
         [],
@@ -42,11 +62,11 @@ AWARDS_LISTS = {
         []],
     'best performance by an actress in a supporting role in a motion picture': [
         ['best', 'actress', 'supporting'],
-        ['television'],
+        ['television', 'tv'],
         []],
     'best performance by an actor in a supporting role in a motion picture': [
         ['best', 'actor', 'supporting'],
-        ['television'],
+        ['television', 'tv'],
         []],
     'best director - motion picture': [
         ['best', 'director'],
@@ -65,47 +85,47 @@ AWARDS_LISTS = {
         [],
         []],
     'best television series - drama': [
-        ['best', 'television', 'drama'],
+        ['best', 'drama'],
         ['actor', 'actress'],
         []],
     'best performance by an actress in a television series - drama': [
-        ['best', 'actress', 'television', 'drama'],
+        ['best', 'actress', 'drama'],
         [],
-        []],
+        ['television', 'tv', 'series']],
     'best performance by an actor in a television series - drama': [
-        ['best', 'actor', 'television', 'drama'],
+        ['best', 'actor', 'drama'],
         [],
-        []],
+        ['television', 'tv', 'series']],
     'best television series - comedy or musical': [
-        ['best', 'television', 'comedy', 'musical'],
+        ['best', 'comedy', 'musical'],
         ['actor', 'actress'],
-        []],
+        ['television', 'tv', 'series']],
     'best performance by an actress in a television series - comedy or musical': [
-        ['best', 'actress', 'television', 'comedy', 'musical'],
+        ['best', 'actress', 'comedy', 'musical'],
         [],
-        []],
+        ['television', 'tv', 'series']],
     'best performance by an actor in a television series - comedy or musical': [
-        ['best', 'actor', 'television', 'comedy', 'musical'],
+        ['best', 'actor', 'comedy', 'musical'],
         [],
-        []],
+        ['television', 'tv', 'series']],
     'best mini-series or motion picture made for television': [
-        ['best', 'mini series', 'motion picture', 'television'],
+        ['best'],
         ['actor', 'actress'],
-        ['mini', 'series', 'motion picture']],
+        ['mini', 'series', 'mini-series', 'television', 'tv']],
     'best performance by an actress in a mini-series or motion picture made for television': [
-        ['best', 'actress', 'television'],
+        ['best', 'actress'],
         [],
-        ['mini series', 'motion picture']],
+        ['mini', 'series', 'mini-series', 'television', 'tv']],
     'best performance by an actor in a mini-series or motion picture made for television': [
-        ['best', 'actor', 'television'],
+        ['best', 'actor'],
         [],
-        ['mini series', 'motion picture']],
+        ['mini', 'series', 'mini-series', 'television', 'tv']],
     'best performance by an actress in a supporting role in a series, mini-series or motion picture made for television': [
-        ['best', 'actress', 'supporting', 'television'],
+        ['best', 'actress', 'supporting'],
         [],
-        [' mini ', ' series ', 'motion picture']],
+        ['television', 'tv']],
     'best performance by an actor in a supporting role in a series, mini-series or motion picture made for television': [
-        ['best', 'actor', 'supporting', 'television'],
+        ['best', 'actor', 'supporting'],
         [],
-        [' mini ', ' series ', 'motion picture']
+        ['television', 'tv']
     ]}
