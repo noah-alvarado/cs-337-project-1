@@ -26,6 +26,7 @@ def args_to_funcs(args, data):
             raise ValueError(err)
 
         func = func_map.get(arg)
+        print(len(list(data.__dict__.keys())))
         print(func(data))
 
 
