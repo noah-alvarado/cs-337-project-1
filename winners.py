@@ -1,5 +1,4 @@
 import re
-import math
 from reference import WINNER_NOISE
 
 
@@ -47,8 +46,8 @@ def get_winners(tweets, awards):
                 best_match = (w, winner_votes[a][w])
         winners[a] = best_match[0].split('+')
 
-    for a, w in winners.items():
-        print('award: ', a, 'winner: ', w)
+    # for a, w in winners.items():
+    #     print('award: ', a, 'winner: ', w)
 
     return winners
 

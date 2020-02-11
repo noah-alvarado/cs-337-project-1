@@ -1,6 +1,4 @@
 import re
-import nltk
-import operator
 
 def get_awards(tweets):
     possible_award = 'Best'
@@ -10,7 +8,7 @@ def get_awards(tweets):
     award_re = '[A-Z][a-z]*'
     in_flag = False
 
-    print(len(list(tweets.__dict__.keys())))
+    # print(len(list(tweets.__dict__.keys())))
 
     all_awards = dict()
 
@@ -53,7 +51,7 @@ def get_awards(tweets):
             else:
                 all_awards[possible_award] = 1
 
-            print(possible_award)
+            # print(possible_award)
             possible_award = 'Best'
 
     top_awards = (sorted(all_awards.items(), key=lambda x: x[1], reverse=True))[:26]
@@ -62,6 +60,6 @@ def get_awards(tweets):
     #     maxi = max(all_awards.items(), key=operator.itemgetter(1))
     #     top_awards.append(maxi)
     #     all_awards[maxi[0]] = -1
-    print(top_awards)
+    # print(top_awards)
 
     return top_awards
