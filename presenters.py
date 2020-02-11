@@ -104,11 +104,12 @@ def extract_presenters(tweet, phrase, awards):
             continue
 
         # at least one plus
-        is_excluded = True
-        for p in plus:
-            if p in award_part:
-                is_excluded = False
-                break
+        if len(plus) > 0:
+            is_excluded = True
+            for p in plus:
+                if p in award_part:
+                    is_excluded = False
+                    break
 
         if is_excluded:
             continue
