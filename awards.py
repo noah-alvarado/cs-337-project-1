@@ -1,5 +1,6 @@
 import re
 
+
 def get_awards(tweets):
     possible_award = 'Best'
     helpers = ['in', 'a', '-', '--', 'by', 'or', 'an', 'In', 'A', 'By', 'Or', 'An', ',']
@@ -54,7 +55,7 @@ def get_awards(tweets):
             # print(possible_award)
             possible_award = 'Best'
 
-    top_awards = (sorted(all_awards.items(), key=lambda x: x[1], reverse=True))[:26]
+    top_awards = (sorted(all_awards.items(), key=lambda x: x[1], reverse=True))[:27]
     # top_awards = []
     # for i in range(26):
     #     maxi = max(all_awards.items(), key=operator.itemgetter(1))
