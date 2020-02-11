@@ -4,7 +4,7 @@ from reactions import gg_reactions
 from reference import WINNER_NOISE
 
 
-def get_winners(tweets, awards):
+def get_winners_helper(tweets, awards):
     phrases = [
         ['wins'],
         ['won'],

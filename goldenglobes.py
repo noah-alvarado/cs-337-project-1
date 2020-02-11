@@ -1,9 +1,9 @@
 from data import GGData
-from presenters import get_presenters
-from nominees import get_nominees
-from winners import get_winners
-from host import get_hosts
-from awards import get_awards
+from presenters import get_presenters_helper
+from nominees import get_nominees_helper
+from winners import get_winners_helper
+from host import get_hosts_helper
+from awards import get_awards_helper
 from reference import AWARDS_LISTS
 from reactions import gg_reactions
 
@@ -15,11 +15,11 @@ def args_to_funcs(args, data):
     gg_reactions.reset()
 
     func_map = {
-        'hosts': get_hosts,
-        'awards': get_awards,
-        'winners': get_winners,
-        'nominees': get_nominees,
-        'presenters': get_presenters
+        'hosts': get_hosts_helper,
+        'awards': get_awards_helper,
+        'winners': get_winners_helper,
+        'nominees': get_nominees_helper,
+        'presenters': get_presenters_helper
     }
 
     return_values = dict()
