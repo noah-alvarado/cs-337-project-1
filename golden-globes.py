@@ -18,6 +18,8 @@ def args_to_funcs(args, data):
         'presenters': get_presenters
     }
 
+    return_values = dict()
+
     if not args:
         args = func_map.keys()
 
