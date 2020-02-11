@@ -1,9 +1,12 @@
 import re
 from reference import AWARDS_LISTS
+import warnings
+
+warnings.filterwarnings('ignore')
 
 def get_nominees(tweets):
     all_nominees = dict()
-    for category, details in AWARDS_LISTS.items():
+    for category in AWARDS_LISTS.keys():
         all_nominees[category] = dict()
     tweets = tweets.__dict__
     for key, tweetObj in tweets.items():
@@ -67,5 +70,9 @@ def get_nominees(tweets):
                         all_nominees[category][possible_nominee] = 1
 
     for award, nominees in all_nominees.items():
-        all_nominees[award] = (sorted(nominees.items(), key=lambda x: x[1], reverse=True))[:5]
+        all_nominees[award] = sorted(nominees.items(), key=lambda x: x[1], reverse=True)[:5]
+        nominees_list = []
+        for each_nom in all_nominees[award]:
+            nominees_list.append(each_nom[0])
+        all_nominees[award] = nominees_list
     return all_nominees
