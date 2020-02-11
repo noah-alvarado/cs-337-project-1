@@ -29,7 +29,7 @@ def get_hosts(tweets):
 
     print (relative_mention_amount)
 
-    if dist >= 5 and relative_mention_amount > 0.75:
+    if dist >= 5 and relative_mention_amount > 0.60:
         most_likely_host.append(top_hosts[1][0])
 
     return most_likely_host

@@ -30,6 +30,7 @@ def get_nominees(tweets):
     all_nominees = dict()
     for category, details in AWARDS_LISTS.items():
         all_nominees[category] = dict()
+    print(all_nominees)
     tweets = tweets.__dict__
     for key, tweetObj in tweets.items():
         for category, details in AWARDS_LISTS.items():
@@ -43,8 +44,6 @@ def get_nominees(tweets):
                     if word in tweet:
                         include = False
             if include:
-                print (category)
-                print (tweet)
                 possible_nominees = []
                 # tweet_sentences = nltk.sent_tokenize(tweet)
                 # tweet_sentences = [nltk.word_tokenize(t_sent) for t_sent in tweet_sentences]
@@ -69,16 +68,37 @@ def get_nominees(tweets):
                 #         if f_name in female_names and (l_name in male_names or l_name in female_names):
                 #             possible_nominees.append(possible_name[0] + ' ' + possible_name[1])
                 # elif 'director' in category:
-                    possible_names = list(nltk.bigrams(tweetObj.words))
+                    # possible_names = list(nltk.bigrams(tweetObj.words))
+                    name_casing = re.compile('[A-Z][a-z]* [A-Z][a-z]*')
+                    possible_names = name_casing.findall(' '.join(tweetObj.words))
                     for possible_name in possible_names:
-                        f_name = possible_name[0]
-                        l_name = possible_name[1]
-                        if (f_name in male_names or f_name in female_names) and (l_name in male_names or l_name in female_names):
-                            possible_nominees.append(possible_name[0] + ' ' + possible_name[1])
+                        # f_name = possible_name[0]
+                        # l_name = possible_name[1]
+                        # if (f_name in male_names or f_name in female_names) and (l_name in male_names or l_name in female_names):
+                        include_name = True
+                        stop_words = ['Golden', 'Globe', "Globes", 'Best', 'Actor', 'Supporting', "Movie", "Motion", 'Picture', 'Drama', 'Television', 'Musical', "T",
+                                      "V", "Limited", "TV", "Actress", "The", "Animated", "Comedy", "In", "Act", "Award", "A", "An", "By"]
+                        for word in stop_words:
+                            if word in possible_name.split():
+                                include_name = False
+                        if include_name:
+                            possible_nominees.append(possible_name)
                 else:
-                    for movie in list_of_movies:
-                        if movie in tweet:
-                            possible_nominees.append(movie)
+                    # for movie in list_of_movies:
+                    #     if movie in tweet:
+                    #         possible_nominees.append(movie)
+                    possible_movie = ''
+                    include_list = ['and', 'of', 'the', 'v', 'an', 'a', 'my']
+                    capitalized_word = re.compile('[A-Z][a-z]*|0-9')
+                    stop_words = ['Golden', 'Globe', "Globes", 'Best', 'Actor', 'Supporting', "Movie", "Motion", 'Picture', 'Drama', 'Television', 'Musical', "T",
+                                      "V", "Limited", "TV", "Actress", "The", "Animated", "Comedy", "In", "Act", "Award", "A"]
+                    for word in tweetObj.words:
+                        if (capitalized_word.match(word) or word in include_list) and word not in stop_words:
+                            possible_movie = possible_movie + word + ' '
+                        else:
+                            possible_movie = possible_movie.strip()
+                            possible_nominees.append(possible_movie)
+                            possible_movie = ''
 
                 for possible_nominee in possible_nominees:
                     if possible_nominee in all_nominees[category]:
@@ -91,4 +111,9 @@ def get_nominees(tweets):
             # if appearances > max_appearance:
                 # max_appearance = appearances
                 # most_likely_host = host
+    for award, nominees in all_nominees.items():
+        #print('cheese')
+        #print(award)
+        #print(nominees)
+        all_nominees[award] = (sorted(nominees.items(), key=lambda x: x[1], reverse=True))[:5]
     return all_nominees
