@@ -3,7 +3,7 @@ import re
 from reference import PRESENTER_NOISE
 
 
-def get_presenters(tweets, awards):
+def get_presenters_helper(tweets, awards):
     keyphrases = [
         ['presenting'],
         ['to', 'present'],

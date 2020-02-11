@@ -4,7 +4,7 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
-def get_nominees(tweets):
+def get_nominees_helper(tweets):
     all_nominees = dict()
     for category in AWARDS_LISTS.keys():
         all_nominees[category] = dict()
