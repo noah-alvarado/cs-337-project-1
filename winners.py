@@ -27,13 +27,27 @@ def get_winners(tweets, awards):
         for phrase in map(lambda x: ' '.join(x), phrases):
             if phrase in lowercase:
                 for winners, award in extract_winners(tweetObj, phrase, awards):
+                    winners.sort()
                     winners = '+'.join(winners)
                     if winners not in all_winners[award]:
                         all_winners[award][winners] = 0
-                    if award != 'ignore':
-                        print('award: ', award, 'winner: ', winners)
+
                     all_winners[award][winners] += 1
                 break
+
+    winners = dict()
+    for a in awards.keys():
+        if a not in all_winners:
+            winners[a] = ['%unknown%']
+            continue
+        best_match = ('%unknown%', -1)
+        for w in all_winners[a].keys():
+            if all_winners[a][w] > best_match[1] and w != 'ignore':
+                best_match = (w, all_winners[a][w])
+        winners[a] = [best_match[0]]
+
+    for a, w in winners.items():
+        print('award: ', a, 'winner: ', w)
 
     return "we're trying here"
 
@@ -79,10 +93,11 @@ def extract_winners(tweet, phrase, awards):
             continue
         # at least one plus
         is_excluded = True
-        for p in plus:
-            if p in award_part:
-                is_excluded = False
-                break
+        if len(plus) > 0:
+            for p in plus:
+                if p in award_part:
+                    is_excluded = False
+                    break
         if is_excluded:
             continue
 
@@ -92,20 +107,31 @@ def extract_winners(tweet, phrase, awards):
 
     for award in possible_awards:
         name_match = re.compile("[A-Z][A-z-]* [A-Z][A-z-]*")
-        title_match = re.compile("[A-Z][A-z-]*")
-        all_winner = re.findall(name_match, winner_part)
-        all_winner = [p for p in map(lambda x: x.lower(), all_winner)]
+        title_match = re.compile("[[A-Z][A-z-]*]*")
+
+        if award in title_awards:
+            # match for movie
+            all_winner = re.findall(title_match, winner_part)
+            all_winner = [p for p in map(lambda z: z.lower(), all_winner)]
+        else:
+            # match for person
+            all_winner = re.findall(name_match, winner_part)
+            all_winner = [p for p in map(lambda z: z.lower(), all_winner)]
+
         winners = []
         for w in all_winner:
+            noisy = False
             for nw in WINNER_NOISE:
-                if nw not in w.lower():
-                    winners.append(w)
+                if nw in w:
+                    noisy = True
+
+            if not noisy:
+                winners.append(w)
+
         if len(winners) > 0:
             yield winners, award
-        else:
-            print('\n', award)
-            print(winner_part, '\n')
-        # always return something, even if no possible awards
+
+    # always return something, even if no possible awards
     yield ['ignore'], 'ignore'
 
 
