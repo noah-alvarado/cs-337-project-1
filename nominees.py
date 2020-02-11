@@ -1,73 +1,71 @@
 import re
-import nltk
-import urllib.request
-
+from reference import AWARDS_LISTS
 
 def get_nominees(tweets):
-    nltk.download('averaged_perceptron_tagger')
-    nltk.download('maxent_ne_chunker')
-    nltk.download('words')
-    categories = ['best screenplay - motion picture',
-                  'best director - motion picture',
-                  'best performance by an actress in a television series - comedy or musical',
-                  'best foreign language film',
-                  'best performance by an actor in a supporting role in a motion picture',
-                  'best performance by an actress in a supporting role in a series, mini-series or motion picture made for television',
-                  'best motion picture - comedy or musical',
-                  'best performance by an actress in a motion picture - comedy or musical',
-                  'best mini-series or motion picture made for television',
-                  'best original score - motion picture',
-                  'best performance by an actress in a television series - drama"',
-                  'best performance by an actress in a motion picture - drama',
-                  'best motion picture - drama',
-                  'best performance by an actor in a supporting role in a series, mini-series or motion picture made for television',
-                  'best performance by an actress in a supporting role in a motion picture',
-                  'best television series - drama',
-                  'best performance by an actor in a mini-series or motion picture made for television',
-                  'best performance by an actress in a mini-series or motion picture made for television',
-                  'best animated feature film',
-                  'best original song - motion picture',
-                  'best performance by an actor in a motion picture - drama',
-                  'best television series - comedy or musical',
-                  'best performance by an actor in a television series - drama',
-                  'best performance by an actor in a television series - comedy or musical']
-    male_names = [name for name in nltk.names.words('male.txt')]
-    female_names = [name for name in nltk.names.words('female.txt')]
-    year = 2020
-    # link for web scraping for movies:
-    movies_wiki = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&page=' + year + '%20in%20film&prop=wikitext&formatversion=2'
     all_nominees = dict()
-    for category in categories:
+    for category, details in AWARDS_LISTS.items():
         all_nominees[category] = dict()
     tweets = tweets.__dict__
     for key, tweetObj in tweets.items():
-        for category in categories:
-            category_re = re.compile(category)
-            possible_matches_re = re.compile('||||||||||')
-            tweet = ' '.join(tweetObj.words)
-            possible_host_match = category_re.search(tweet)
-            possible_nominees = []
-            if possible_host_match:
-                tweet_sentences = nltk.sent_tokenize(tweet)
-                tweet_sentences = [nltk.word_tokenize(t_sent) for t_sent in tweet_sentences]
-                tweet_sentences = [nltk.pos_tag(t_sent) for t_sent in tweet_sentences]
-                for tagged_sentence in tweet_sentences:
-                    for chunk in nltk.ne_chunk(tagged_sentence):
-                        if type(chunk) == nltk.tree.Tree:
-                            if chunk.label() == 'PERSON':
-                                possible_nominees.append(' '.join([c[0] for c in chunk]))
+        for category, details in AWARDS_LISTS.items():
+            include = True
+            tweet = ' '.join(tweetObj.words).lower()
+
+            if len(details[2]) > 0:
+                include = False
+                for word in details[2]:
+                    if word in tweet:
+                        include = True
+                        break
+
+            for word in details[0]:
+                if word not in tweet:
+                    include = False
+                    break
+
+            for word in details[1]:
+                if word in tweet:
+                    include = False
+                    break
+
+            if include:
+                possible_nominees = []
+                if 'actor' in category or 'actress' in category or 'director' in category:
+                    name_casing = re.compile('[A-Z][a-z]* [A-Z][a-z]*')
+                    possible_names = name_casing.findall(' '.join(tweetObj.words))
+                    for possible_name in possible_names:
+                        include_name = True
+                        stop_words = ['Golden', 'Globe', "Globes", 'Best', 'Actor', 'Supporting', "Movie", "Motion", 'Picture', 'Drama', 'Television', 'Musical', "T",
+                                      "V", "Limited", "TV", "Actress", "The", "Animated", "Comedy", "In", "Act", "Award", "A", "An", "By", "Series", "Film", "Congrats",
+                                      "Congratulations", "Feature"]
+                        for word in stop_words:
+                            if word in possible_name.split():
+                                include_name = False
+                        if include_name:
+                            possible_nominees.append(possible_name.lower())
+                else:
+                    movie_matcher = re.compile('[[A-Z][A-z]*[ ]*]*')
+                    possible_movies = re.findall(movie_matcher, ' '.join(tweetObj.words))
+                    stop_words = ['Golden', 'Globe', "Globes", 'Best', 'Actor', 'Supporting', "Movie", "Motion",
+                                  'Picture', 'Drama', 'Television', 'Musical', "T",
+                                  "V", "Limited", "TV", "Actress", "The", "Animated", "Comedy", "In", "Act", "Award",
+                                  "A"]
+
+                    for m in possible_movies:
+                        bad = False
+                        for sw in stop_words:
+                            if sw.lower() in m.lower():
+                                bad = True
+                                break
+                        if not bad:
+                            possible_nominees.append(m.strip().lower())
+
                 for possible_nominee in possible_nominees:
-                    print(tweet)
-                    print(possible_nominee)
                     if possible_nominee in all_nominees[category]:
                         all_nominees[category][possible_nominee] = all_nominees[category][possible_nominee] + 1
                     else:
                         all_nominees[category][possible_nominee] = 1
-        max_appearance = 0
-        most_likely_host = ''
-        # for host, appearances in all_nominees.items():
-            # if appearances > max_appearance:
-                # max_appearance = appearances
-                # most_likely_host = host
-    print(all_nominees['best director - motion picture'])
-    return 'julio jorge'
+
+    for award, nominees in all_nominees.items():
+        all_nominees[award] = (sorted(nominees.items(), key=lambda x: x[1], reverse=True))[:5]
+    return all_nominees

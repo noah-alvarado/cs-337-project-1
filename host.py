@@ -1,5 +1,5 @@
 
-import nltk
+from nltk.metrics import edit_distance
 import re
 
 def get_hosts(tweets):
@@ -20,11 +20,15 @@ def get_hosts(tweets):
                 all_hosts[possible_host] = all_hosts[possible_host] + 1
             else:
                 all_hosts[possible_host] = 1
-    max_appearance = 0
-    most_likely_host = ''
-    for host, appearances in all_hosts.items():
-        if appearances > max_appearance:
-            max_appearance = appearances
-            most_likely_host = host
+
+    top_hosts = (sorted(all_hosts.items(), key=lambda x: x[1], reverse=True))[:2]
+    most_likely_host = [top_hosts[0][0]]
+
+    dist = edit_distance(most_likely_host[0].lower(), top_hosts[1][0].lower())
+    relative_mention_amount = top_hosts[1][1] / top_hosts[0][1]
+
+    if dist >= 5 and relative_mention_amount > 0.60:
+        most_likely_host.append(top_hosts[1][0])
+
     return most_likely_host
 
