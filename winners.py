@@ -46,7 +46,7 @@ def get_winners(tweets, awards):
         for w in winner_votes[a].keys():
             if winner_votes[a][w] > best_match[1] and w != 'ignore':
                 best_match = (w, winner_votes[a][w])
-        winners[a] = best_match[0].split('+')
+        winners[a] = ' '.join(best_match[0].split('+'))
 
     # for a, w in winners.items():
     #     print('award: ', a, 'winner: ', w)
