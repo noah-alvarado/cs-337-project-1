@@ -3,7 +3,7 @@ from reactions import gg_reactions
 
 import re
 
-def get_hosts(tweets):
+def get_hosts_helper(tweets):
     host_re = re.compile('host [A-Z][a-z]* [A-Z][a-z]*')
     all_hosts = dict()
     tweets = tweets.__dict__

@@ -1,7 +1,7 @@
 import re
 
 
-def get_awards(tweets):
+def get_awards_helper(tweets):
     possible_award = 'Best'
     helpers = ['in', 'a', '-', '--', 'by', 'or', 'an', 'In', 'A', 'By', 'Or', 'An', ',']
     stop_words = ['For', 'From']
