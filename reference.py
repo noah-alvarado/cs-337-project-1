@@ -7,9 +7,14 @@ PRESENTER_NOISE = [
     'award',
     'tv',
     'television',
+    'series'
     'motion',
     'picture',
-    'when'
+    'when',
+    'fashion',
+    'dressed',
+    'best',
+    'fitness'
 ]
 
 # { award : [
