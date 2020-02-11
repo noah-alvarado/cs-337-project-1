@@ -41,23 +41,24 @@ def get_presenters(tweets, awards):
     presenters = dict()
     for a in awards.keys():
         if a not in presenter_votes:
-            presenters[a] = ['%hosts%']
+            presenters[a] = '%hosts%'
             continue
 
         best_match = ('%hosts%', -1)
         for p in presenter_votes[a].keys():
             if presenter_votes[a][p] > best_match[1] and p != 'ignore':
                 best_match = (p, presenter_votes[a][p])
-        presenters[a] = [best_match[0]]
+        presenters[a] = best_match[0].split('+')
 
+    print('\n\n--------------------------------------------\n\n')
     for a, p in presenters.items():
-        print(f'\n{a}: {p}\n')
+        print(f'{a}: {p}\n')
 
-    return 'no presenters yet, but i have some tweets'
+    return presenters
 
 
 def extract_presenters(tweet, phrase, awards):
-    lowercase = list(map(lambda x: x.lower(), tweet.words))
+    lowercase = list(map(lambda y: y.lower(), tweet.words))
 
     try:
         start = ' '.join(lowercase).index(phrase)
@@ -119,7 +120,7 @@ def extract_presenters(tweet, phrase, awards):
         # find presenter
         name_match = re.compile("[A-Z][A-z-]* [A-Z][A-z-]*")
         all_presenters = re.findall(name_match, presenter_part)
-        all_presenters = [p for p in map(lambda x: x.lower(), all_presenters)]
+        all_presenters = [p for p in map(lambda z: z.lower(), all_presenters)]
 
         presenters = []
         for p in all_presenters:
@@ -129,10 +130,15 @@ def extract_presenters(tweet, phrase, awards):
                     noisy = True
                     break
             if not noisy:
-                presenters.append(p)
+                if p not in presenters:
+                    presenters.append(p)
 
         if len(presenters) > 0:
             yield presenters, award
+        else:
+            print(award)
+            print(award_part)
+            print(presenter_part, '\n')
 
     # always return something, even if no possible awards
     yield ['ignore'], 'ignore'
