@@ -1,5 +1,4 @@
 import re
-import math
 
 from reference import PRESENTER_NOISE
 
@@ -49,10 +48,6 @@ def get_presenters(tweets, awards):
             if presenter_votes[a][p] > best_match[1] and p != 'ignore':
                 best_match = (p, presenter_votes[a][p])
         presenters[a] = best_match[0].split('+')
-
-    print('\n\n--------------------------------------------\n\n')
-    for a, p in presenters.items():
-        print(f'{a}: {p}\n')
 
     return presenters
 
@@ -136,10 +131,6 @@ def extract_presenters(tweet, phrase, awards):
 
         if len(presenters) > 0:
             yield presenters, award
-        else:
-            print(award)
-            print(award_part)
-            print(presenter_part, '\n')
 
     # always return something, even if no possible awards
     yield ['ignore'], 'ignore'
