@@ -1,4 +1,5 @@
 import re
+import math
 from reference import WINNER_NOISE
 
 
@@ -17,10 +18,10 @@ def get_winners(tweets, awards):
         ['wins', 'the', 'Golden', 'Globe', 'for']
     ]
 
-    all_winners = dict()
-    all_winners['ignore'] = dict()
+    winner_votes = dict()
+    winner_votes['ignore'] = dict()
     for category in awards.keys():
-        all_winners[category] = dict()
+        winner_votes[category] = dict()
 
     for tweetObj in tweets.__dict__.values():
         lowercase = ' '.join([lw for lw in map(lambda x: x.lower(), tweetObj.words)])
@@ -28,32 +29,32 @@ def get_winners(tweets, awards):
             if phrase in lowercase:
                 for winners, award in extract_winners(tweetObj, phrase, awards):
                     winners.sort()
-                    winners = '+'.join(winners)
-                    if winners not in all_winners[award]:
-                        all_winners[award][winners] = 0
+                    w = '+'.join(winners)
+                    if w not in winner_votes[award]:
+                        winner_votes[award][w] = 0
 
-                    all_winners[award][winners] += 1
+                    winner_votes[award][w] += 1
                 break
 
     winners = dict()
     for a in awards.keys():
-        if a not in all_winners:
+        if a not in winner_votes:
             winners[a] = ['%unknown%']
             continue
         best_match = ('%unknown%', -1)
-        for w in all_winners[a].keys():
-            if all_winners[a][w] > best_match[1] and w != 'ignore':
-                best_match = (w, all_winners[a][w])
-        winners[a] = [best_match[0]]
+        for w in winner_votes[a].keys():
+            if winner_votes[a][w] > best_match[1] and w != 'ignore':
+                best_match = (w, winner_votes[a][w])
+        winners[a] = best_match[0].split('+')
 
     for a, w in winners.items():
         print('award: ', a, 'winner: ', w)
 
-    return "we're trying here"
+    return winners
 
 def extract_winners(tweet, phrase, awards):
     # winners = []
-    lowercase = list(map(lambda w: w.lower(), tweet.words))
+    lowercase = list(map(lambda y: y.lower(), tweet.words))
     # print(phrase)
     # print(lowercase)
     # start = lowercase.index(phrase[0])
@@ -92,8 +93,9 @@ def extract_winners(tweet, phrase, awards):
         if is_excluded:
             continue
         # at least one plus
-        is_excluded = True
+
         if len(plus) > 0:
+            is_excluded = True
             for p in plus:
                 if p in award_part:
                     is_excluded = False
@@ -107,7 +109,7 @@ def extract_winners(tweet, phrase, awards):
 
     for award in possible_awards:
         name_match = re.compile("[A-Z][A-z-]* [A-Z][A-z-]*")
-        title_match = re.compile("[[A-Z][A-z-]*]*")
+        title_match = re.compile("[[A-Z][A-z-]*[ ]*]*")
 
         if award in title_awards:
             # match for movie
@@ -124,9 +126,11 @@ def extract_winners(tweet, phrase, awards):
             for nw in WINNER_NOISE:
                 if nw in w:
                     noisy = True
+                    break
 
             if not noisy:
-                winners.append(w)
+                if w not in winners:
+                    winners.append(w.strip())
 
         if len(winners) > 0:
             yield winners, award
@@ -134,23 +138,11 @@ def extract_winners(tweet, phrase, awards):
     # always return something, even if no possible awards
     yield ['ignore'], 'ignore'
 
-
-    # award = max(possible_awards, key=len)
-    # print(award)
-    #
-    # return winners, award
-        #
-        # for possible_winner in possible_winners:
-        #     print(tweet)
-        #     print(possible_winner)
-        #     if possible_winner in all_winners[category]:
-        #         all_winners[category][possible_winner] = all_winners[category][possible_winner] + 1
-        #     else:
-        #         all_winners[category][possible_winner] = 1
-
-        # max_appearance = 0
-        # most_likely_winner = ''
-        # for winner, appearances in all_winners[category].items():
-        #     if appearances > max_appearance:
-        #         max_appearance = appearances
-        #         most_likely_winner = winner
+# problems:
+# best animated feature film winner:  ['link+missing'] real: missing link
+# best original score - motion picture winner:  ['gunadttir+hildur'] real: hildur gudnad'ottir
+# best original song - motion picture winner:  ['eltonofficial'] real: 'i'm gonna love me again' by elton john
+# best screenplay - motion picture winner:  ['quentin+tarantino'] just the +
+# best performance by an actress in a motion picture - comedy or musical winner:  ['congratulations awkwafina'] real: awkwafina
+# best motion picture - comedy or musical winner:  ['hollywood+once+time+upon'] real: once upon a time in hollywood
+# best motion picture - drama winner:  ['latest+the'] real: 1917

@@ -1,3 +1,5 @@
+REACTIONS = ['mad', 'upset', 'happy', 'sad', 'good', 'bad', 'funny', 'cool', 'awful', 'terrible']
+
 PRESENTER_NOISE = [
     'annual',
     'golden',
@@ -7,9 +9,14 @@ PRESENTER_NOISE = [
     'award',
     'tv',
     'television',
+    'series'
     'motion',
     'picture',
-    'when'
+    'when',
+    'fashion',
+    'dressed',
+    'best',
+    'fitness'
 ]
 
 WINNER_NOISE = [
@@ -136,10 +143,10 @@ AWARDS_LISTS = {
         ['mini', 'mini-series', 'limited']],
     'best performance by an actress in a supporting role in a series, mini-series or motion picture made for television': [
         ['best', 'actress', 'supporting'],
-        ['actor'],
+        ['actor', 'film', 'feature'],
         ['mini', 'mini-series', 'limited', 'television', 'tv', 'series']],
     'best performance by an actor in a supporting role in a series, mini-series or motion picture made for television': [
         ['best', 'actor', 'supporting'],
-        ['actress'],
+        ['actress', 'film', 'feature'],
         ['mini', 'mini-series', 'limited', 'television', 'tv', 'series']
     ]}
