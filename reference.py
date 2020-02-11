@@ -1,3 +1,5 @@
+REACTIONS = ['mad', 'upset', 'happy', 'sad', 'good', 'bad', 'funny', 'cool', 'awful', 'terrible']
+
 PRESENTER_NOISE = [
     'annual',
     'golden',
