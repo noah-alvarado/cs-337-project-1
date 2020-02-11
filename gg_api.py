@@ -79,13 +79,18 @@ def main():
     nominees = get_nominees(2020)
     winner = get_winner(2020)
     print('Host(s): ', ', '.join(hosts))
-    print('Host Reaction: ', gg_reactions.get_reaction('hosts', 'hosts'))
-    for award in awards:
+    print('Host Reaction: ', gg_reactions.get_reaction('hosts', 'host'))
+
+    for a in presenters.keys():
+        if '%hosts%' in presenters[a]:
+            presenters[a] = hosts
+
+    for award in AWARDS_LISTS.keys():
         print(' ')
         print('Award: ', award)
         print('Presenters: ', ', '.join(presenters[award]))
         print('Nominees: ', ', '.join(nominees[award]))
-        print('Winner: ', ', '.join(winner[award]))
+        print('Winner: ', winner[award])
         print('Reaction for Award: ', gg_reactions.get_reaction('winners', award))
     return
 
