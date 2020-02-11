@@ -5,12 +5,9 @@ from winners import get_winners
 from host import get_hosts
 from awards import get_awards
 from reference import AWARDS_LISTS
-from reactions import Reactions
+from reactions import gg_reactions
 
 import argparse
-
-
-gg_reactions = Reactions()
 
 
 def args_to_funcs(args, data):
@@ -57,7 +54,7 @@ if __name__ == '__main__':
     parser.add_argument('-f', '--file', nargs=1, type=int, help='specify tweets file to parse')
     args = parser.parse_args()
 
-    tweets = GGData(args.file)
+    tweets = GGData()
     args_to_funcs(args.info, tweets)
 
 # reputable news outlets:

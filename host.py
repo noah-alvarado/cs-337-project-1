@@ -1,5 +1,5 @@
 from nltk.metrics import edit_distance
-from goldenglobes import gg_reactions
+from reactions import gg_reactions
 
 import re
 

@@ -1,6 +1,6 @@
 import re
 
-from goldenglobes import gg_reactions
+from reactions import gg_reactions
 from reference import WINNER_NOISE
 
 
