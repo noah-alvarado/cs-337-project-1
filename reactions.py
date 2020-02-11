@@ -44,7 +44,7 @@ class Reactions(Borg):
 
         for r in REACTIONS:
             if r in text.lower():
-                self.reactions[kind][item][text] += 1
+                self.reactions[kind][item][r] += 1
 
 
 gg_reactions = Reactions()
