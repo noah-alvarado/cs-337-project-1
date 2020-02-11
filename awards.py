@@ -62,5 +62,9 @@ def get_awards(tweets):
     #     top_awards.append(maxi)
     #     all_awards[maxi[0]] = -1
     # print(top_awards)
+    awards_list = []
 
-    return top_awards
+    for award, appearances in top_awards:
+        awards_list.append(award)
+
+    return awards_list
