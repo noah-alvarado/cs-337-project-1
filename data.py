@@ -62,7 +62,7 @@ class GGData(object):
             tweet = Tweet(json.loads(line))
             tweets[tweet.id] = tweet
 
-        print(len(list(tweets.keys())))
+        # print(len(list(tweets.keys())))
 
         self.__dict__ = copy.deepcopy(tweets)
 
