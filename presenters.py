@@ -111,7 +111,7 @@ def extract_presenters(tweet, phrase, awards):
         presenters = []
         for p in all_presenters:
             for nw in PRESENTER_NOISE:
-                if nw not in p:
+                if nw not in p.lower():
                     presenters.append(p)
 
         if len(presenters) > 0:
