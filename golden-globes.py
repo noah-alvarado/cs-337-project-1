@@ -30,7 +30,7 @@ def args_to_funcs(args, data):
 
         func = func_map.get(arg)
         print(len(list(data.__dict__.keys())))
-        print(func(data))
+        # print(func(data))
 
         if (arg == 'presenters') or (arg == 'winners'):
             return_values[arg] = func(data, AWARDS_LISTS)
