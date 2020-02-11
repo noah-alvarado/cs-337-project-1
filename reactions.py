@@ -28,10 +28,9 @@ class Reactions(Borg):
 
     def get_reaction(self, kind, item):
         best_match = ('nothing', 0)
-        for reacs in self.reactions[kind][item].items():
-            for r in reacs:
-                if r[1] > best_match[1]:
-                    best_match = r
+        for r, v in self.reactions[kind][item].items():
+            if v > best_match[1]:
+                best_match = (r, v)
 
         if best_match[0] == 'nothing':
             return random.choice(list(self.reactions[kind][item].keys()))
@@ -40,7 +39,7 @@ class Reactions(Borg):
 
     def extract_reaction(self, kind, item, text):
         if item not in self.reactions[kind]:
-            self.reactions[kind][item] = dict([(key, 0) for key in REACTIONS])
+            self.reactions[kind][item] = {key: 0 for key in REACTIONS}
 
         for r in REACTIONS:
             if r in text.lower():
