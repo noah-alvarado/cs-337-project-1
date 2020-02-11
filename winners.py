@@ -1,4 +1,6 @@
 import re
+
+from goldenglobes import gg_reactions
 from reference import WINNER_NOISE
 
 
@@ -50,6 +52,7 @@ def get_winners(tweets, awards):
     #     print('award: ', a, 'winner: ', w)
 
     return winners
+
 
 def extract_winners(tweet, phrase, awards):
     # winners = []
@@ -132,6 +135,7 @@ def extract_winners(tweet, phrase, awards):
                     winners.append(w.strip())
 
         if len(winners) > 0:
+            gg_reactions.extract_reaction('winners', award, ' '.join(tweet.words))
             yield winners, award
 
     # always return something, even if no possible awards

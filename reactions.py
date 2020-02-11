@@ -20,6 +20,12 @@ class Reactions(Borg):
 
     def __str__(self): return str(self.reactions)
 
+    def reset(self):
+        self.reactions = {
+            'hosts': {},
+            'winners': {}
+        }
+
     def get_reaction(self, kind, item):
         best_match = ('nothing', 0)
         for reacs in self.reactions[kind][item].items():

@@ -1,5 +1,6 @@
-
 from nltk.metrics import edit_distance
+from goldenglobes import gg_reactions
+
 import re
 
 def get_hosts(tweets):
@@ -20,6 +21,7 @@ def get_hosts(tweets):
                 all_hosts[possible_host] = all_hosts[possible_host] + 1
             else:
                 all_hosts[possible_host] = 1
+            gg_reactions('hosts', 'host', ' '.join(tweetObj.words))
 
     top_hosts = (sorted(all_hosts.items(), key=lambda x: x[1], reverse=True))[:2]
     most_likely_host = [top_hosts[0][0]]

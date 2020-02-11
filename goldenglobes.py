@@ -5,11 +5,18 @@ from winners import get_winners
 from host import get_hosts
 from awards import get_awards
 from reference import AWARDS_LISTS
+from reactions import Reactions
 
 import argparse
 
 
+gg_reactions = Reactions()
+
+
 def args_to_funcs(args, data):
+
+    gg_reactions.reset()
+
     func_map = {
         'hosts': get_hosts,
         'awards': get_awards,
@@ -31,8 +38,12 @@ def args_to_funcs(args, data):
         func = func_map.get(arg)
         # print(func(data))
 
-        if (arg == 'presenters') or (arg == 'winners'):
+        if arg == 'presenters':
             return_values[arg] = func(data, AWARDS_LISTS)
+        elif arg == 'winners':
+            return_values[arg] = func(data, AWARDS_LISTS)
+        elif arg == 'hosts':
+            return_values[arg] = func(data)
         else:
             return_values[arg] = func(data)
 

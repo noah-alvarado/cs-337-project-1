@@ -51,9 +51,8 @@ class Tweet(object):
 
 
 class GGData(object):
-    def __init__(self, file=None):
-        if file is None:
-            file = 'tweets/gg2020.json'
+    def __init__(self, year=2020):
+        file = f'gg{year}.json'
 
         content = open(file, encoding='utf-8').read().splitlines()
 
@@ -61,8 +60,6 @@ class GGData(object):
         for line in content:
             tweet = Tweet(json.loads(line))
             tweets[tweet.id] = tweet
-
-        # print(len(list(tweets.keys())))
 
         self.__dict__ = copy.deepcopy(tweets)
 
