@@ -1,16 +1,12 @@
 import copy
 import json
 import re
-
-import numpy as np
+import pandas as pd
 
 
 class Tweet(object):
     def __init__(self, data):
-        self.id = data['_id']['$oid']
-        self.timestamp = data['created_at']
-        self.user = data['user']
-        self.user_id = data['user_id']
+        self.id = data['id']
         self.hashtags = []
         self.mentions = []
         self.words = []
@@ -41,9 +37,6 @@ class Tweet(object):
     def __str__(self):
         rtn = f'<{self.__class__.__name__} at {id(self)}>\n'
         rtn += f'\tid: {self.id}\n'
-        rtn += f'\ttimestamp: {self.timestamp}\n'
-        rtn += f'\tuser: {self.user}\n'
-        rtn += f'\tuser_id: {self.user_id}\n'
         rtn += f'\thashtags: {str(self.hashtags)}\n'
         rtn += f'\tmentions: {str(self.mentions)}\n'
         rtn += f'\twords: {str(self.words)}'
@@ -54,45 +47,12 @@ class GGData(object):
     def __init__(self, year=2020):
         file = f'gg{year}.json'
 
-        content = open(file, encoding='utf-8').read().splitlines()
+        content = pd.read_json(file)
 
         tweets = dict()
-        for line in content:
-            tweet = Tweet(json.loads(line))
+        for index, row in content.iterrows():
+            tweet = Tweet(row)
             tweets[tweet.id] = tweet
 
         self.__dict__ = copy.deepcopy(tweets)
-
-    def random_split(self, fraction=0.3333):
-        indices = list(self.__dict__.keys())
-        indices_len = len(indices)
-
-        if fraction > 1.0:
-            raise ValueError('N cannot be bigger than number of examples!')
-
-        if fraction == 1.0:
-            return list(self.__dict__.keys()), list(self.__dict__.keys())
-
-        N = int(indices_len * fraction)
-        M = int(indices_len - N)
-        used_indices = []
-
-        train_indices = []
-        test_indices = []
-
-        i = 0
-        j = 0
-        while i < N or j < M:
-            rand_idx = np.random.randint(0, high=indices_len)
-            if i < N and rand_idx not in used_indices:
-                train_indices.append(indices[rand_idx])
-                used_indices.append(rand_idx)
-                i += 1
-
-            rand_idx = np.random.randint(0, high=indices_len)
-            if j < M and rand_idx not in used_indices:
-                test_indices.append(indices[rand_idx])
-                used_indices.append(rand_idx)
-                j += 1
-
-        return train_indices, test_indices
+        print(len(tweets.keys()))
