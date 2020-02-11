@@ -1,81 +1,148 @@
-
 import re
-import nltk
-import urllib.request
+import math
+from reference import WINNER_NOISE
 
 
+def get_winners(tweets, awards):
+    phrases = [
+        ['wins'],
+        ['won'],
+        ['Wins'],
+        ['Won'],
+        ['won by'],
+        ['wins', 'Golden', 'Globe', 'for'],
+        ['won', 'Golden', 'Globe', 'for'],
+        ['wins', 'a', 'Golden', 'Globe', 'for'],
+        ['won', 'a', 'Golden', 'Globe', 'for'],
+        ['won', 'the', 'Golden', 'Globe', 'for'],
+        ['wins', 'the', 'Golden', 'Globe', 'for']
+    ]
 
-def get_winners(tweets):
-    #  nltk.download('punkt')
-    nltk.download('averaged_perceptron_tagger')
-    nltk.download('maxent_ne_chunker')
-    nltk.download('words')
-    categories = ['best screenplay - motion picture',
-                  'best director - motion picture',
-                  'best performance by an actress in a television series - comedy or musical',
-                  'best foreign language film',
-                  'best performance by an actor in a supporting role in a motion picture',
-                  'best performance by an actress in a supporting role in a series, mini-series or motion picture made for television',
-                  'best motion picture - comedy or musical',
-                  'best performance by an actress in a motion picture - comedy or musical',
-                  'best mini-series or motion picture made for television',
-                  'best original score - motion picture',
-                  'best performance by an actress in a television series - drama"',
-                  'best performance by an actress in a motion picture - drama',
-                  'best motion picture - drama',
-                  'best performance by an actor in a supporting role in a series, mini-series or motion picture made for television',
-                  'best performance by an actress in a supporting role in a motion picture',
-                  'best television series - drama',
-                  'best performance by an actor in a mini-series or motion picture made for television',
-                  'best performance by an actress in a mini-series or motion picture made for television',
-                  'best animated feature film',
-                  'best original song - motion picture',
-                  'best performance by an actor in a motion picture - drama',
-                  'best television series - comedy or musical',
-                  'best performance by an actor in a television series - drama',
-                  'best performance by an actor in a television series - comedy or musical']
+    winner_votes = dict()
+    winner_votes['ignore'] = dict()
+    for category in awards.keys():
+        winner_votes[category] = dict()
 
-    male_names = [name for name in nltk.names.words('male.txt')]
-    female_names = [name for name in nltk.names.words('female.txt')]
-    year = 2020
-    movies_wiki = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&page=' + year + '%20in%20film&prop=wikitext&formatversion=2'
+    for tweetObj in tweets.__dict__.values():
+        lowercase = ' '.join([lw for lw in map(lambda x: x.lower(), tweetObj.words)])
+        for phrase in map(lambda x: ' '.join(x), phrases):
+            if phrase in lowercase:
+                for winners, award in extract_winners(tweetObj, phrase, awards):
+                    winners.sort()
+                    w = '+'.join(winners)
+                    if w not in winner_votes[award]:
+                        winner_votes[award][w] = 0
 
-    all_winners = dict()
-    for category in categories:
-        all_winners[category] = dict()
-    #  winners_re = re.compile('WINNER! [A-Z[a-z]* [A-Z][a-z]*' | 'Congratulations to [A-Z[a-z]* [A-Z][a-z]*' | '[A-Z[a-z]* [A-Z][a-z]* wins')
-    tweets = tweets.__dict__
-    for key, tweetObj in tweets.items():
-        for category in categories:
-            category_re = re.compile(category)
-            tweet = ' '.join(tweetObj.words)
-            possible_winner_match = category_re.search(tweet)
-            possible_winners = []
-            if possible_winner_match:
-                tweet_sentences = nltk.sent_tokenize(tweet)
-                tweet_sentences = [nltk.word_tokenize(t_sent) for t_sent in tweet_sentences]
-                tweet_sentences = [nltk.pos_tag(t_sent) for t_sent in tweet_sentences]
-                for tagged_sentence in tweet_sentences:
-                    for chunk in nltk.ne_chunk(tagged_sentence):
-                        if type(chunk) == nltk.tree.Tree:
-                            if chunk.label() == 'PERSON':
-                                possible_winners.append(' '.join([c[0] for c in chunk]))
-                for possible_winner in possible_winners:
-                    print(tweet)
-                    print(possible_winner)
-                    if possible_winner in all_winners[category]:
-                        all_winners[category][possible_winner] = all_winners[category][possible_winner] + 1
-                    else:
-                        all_winners[category][possible_winner] = 1
+                    winner_votes[award][w] += 1
+                break
 
-        max_appearance = 0
-        most_likely_winner = ''
-        for winner, appearances in all_winners[category].items():
-            if appearances > max_appearance:
-                max_appearance = appearances
-                most_likely_winner = winner
+    winners = dict()
+    for a in awards.keys():
+        if a not in winner_votes:
+            winners[a] = ['%unknown%']
+            continue
+        best_match = ('%unknown%', -1)
+        for w in winner_votes[a].keys():
+            if winner_votes[a][w] > best_match[1] and w != 'ignore':
+                best_match = (w, winner_votes[a][w])
+        winners[a] = best_match[0].split('+')
 
-    print(all_winners['best director - motion picture'])
+    for a, w in winners.items():
+        print('award: ', a, 'winner: ', w)
 
+    return winners
 
-    return most_likely_winner
+def extract_winners(tweet, phrase, awards):
+    # winners = []
+    lowercase = list(map(lambda y: y.lower(), tweet.words))
+    # print(phrase)
+    # print(lowercase)
+    # start = lowercase.index(phrase[0])
+
+    try:
+        start = ' '.join(lowercase).index(phrase)
+    except ValueError:
+        return [['ignore'], 'ignore']
+
+    if phrase == ['won', 'by']:
+        winner_part = ' '.join(tweet.words)[(start + len(phrase)):]
+        award_part = ' '.join(lowercase)[:start]
+    else:
+        winner_part = ' '.join(tweet.words)[:start]
+        award_part = ' '.join(lowercase)[(start + len(phrase)):]
+
+    possible_awards = []
+    for award_name, properties in list(awards.items()):
+        inclusions = properties[0]
+        exclusions = properties[1]
+        plus = properties[2]
+
+        is_excluded = False
+        # no exclusions
+        for exl in exclusions:
+            if exl in award_part:
+                is_excluded = True
+                break
+        if is_excluded:
+            continue
+        # all inclusions
+        for inc in inclusions:
+            if inc not in award_part:
+                is_excluded = True
+                break
+        if is_excluded:
+            continue
+        # at least one plus
+
+        if len(plus) > 0:
+            is_excluded = True
+            for p in plus:
+                if p in award_part:
+                    is_excluded = False
+                    break
+        if is_excluded:
+            continue
+
+        possible_awards.append(award_name)
+
+    title_awards = ['best motion picture - drama', 'best motion picture - comedy or musical', 'best animated feature film', 'best foreign language film', 'best screenplay - motion picture', 'best original score - motion picture', 'best original song - motion picture', 'best television series - drama', 'best television series - comedy or musical', 'best mini-series or motion picture made for television']
+
+    for award in possible_awards:
+        name_match = re.compile("[A-Z][A-z-]* [A-Z][A-z-]*")
+        title_match = re.compile("[[A-Z][A-z-]*[ ]*]*")
+
+        if award in title_awards:
+            # match for movie
+            all_winner = re.findall(title_match, winner_part)
+            all_winner = [p for p in map(lambda z: z.lower(), all_winner)]
+        else:
+            # match for person
+            all_winner = re.findall(name_match, winner_part)
+            all_winner = [p for p in map(lambda z: z.lower(), all_winner)]
+
+        winners = []
+        for w in all_winner:
+            noisy = False
+            for nw in WINNER_NOISE:
+                if nw in w:
+                    noisy = True
+                    break
+
+            if not noisy:
+                if w not in winners:
+                    winners.append(w.strip())
+
+        if len(winners) > 0:
+            yield winners, award
+
+    # always return something, even if no possible awards
+    yield ['ignore'], 'ignore'
+
+# problems:
+# best animated feature film winner:  ['link', 'missing'] real: missing link
+# best original score - motion picture winner:  ['gunadttir', 'hildur'] real: hildur gudnad'ottir
+# best original song - motion picture winner:  ['eltonofficial'] real: 'i'm gonna love me again' by elton john
+# best screenplay - motion picture winner:  ['quentin', 'tarantino'] just the +
+# best performance by an actress in a motion picture - comedy or musical winner:  ['congratulations awkwafina'] real: awkwafina
+# best motion picture - comedy or musical winner:  ['hollywood', 'once', 'time', 'upon'] real: once upon a time in hollywood
+# best motion picture - drama winner:  ['latest', 'the'] real: 1917
