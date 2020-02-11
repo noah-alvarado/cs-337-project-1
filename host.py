@@ -27,8 +27,6 @@ def get_hosts(tweets):
     dist = edit_distance(most_likely_host[0].lower(), top_hosts[1][0].lower())
     relative_mention_amount = top_hosts[1][1] / top_hosts[0][1]
 
-    print (relative_mention_amount)
-
     if dist >= 5 and relative_mention_amount > 0.60:
         most_likely_host.append(top_hosts[1][0])
 
