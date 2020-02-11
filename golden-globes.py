@@ -4,6 +4,7 @@ from nominees import get_nominees
 from winners import get_winners
 from host import get_hosts
 from awards import get_awards
+from reference import AWARDS_LISTS
 
 import argparse
 
@@ -28,6 +29,11 @@ def args_to_funcs(args, data):
         func = func_map.get(arg)
         print(len(list(data.__dict__.keys())))
         print(func(data))
+
+        if (arg == 'presenters') or (arg == 'winners'):
+            return_values[arg] = func(data, AWARDS_LISTS)
+        else:
+            return_values[arg] = func(data)
 
 
 if __name__ == '__main__':
