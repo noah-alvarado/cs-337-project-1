@@ -47,6 +47,8 @@ def args_to_funcs(args, data):
         else:
             return_values[arg] = func(data)
 
+        print(return_values[arg])
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Analyze tweets from the Golden Globes to find information about the '
